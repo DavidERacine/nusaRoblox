@@ -1,5 +1,5 @@
 Environment.json
 DevEnvironment.json
-.\node_modules\
+/.vscode/
 /node_modules/
 cookie
