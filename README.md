@@ -1,5 +1,5 @@
 # nusaRoblox
-![test](https://i.imgur.com/La9ijsO.png | width=90)
+![](https://i.imgur.com/La9ijsO.png)
 ###### nusaRoblox is a async-enabled, expandable, offline-storage, NodeJS powered discord bot.
 
 # Main Features
