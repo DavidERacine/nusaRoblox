@@ -56,10 +56,10 @@ module.exports = {
                     await Service.Utils.ExternalLog(Service, "setRolePositions Error", `${err}`);
                 });
             }else{
-                return Service.Utils.ReturnMessage(message, `RobloxNUSA.Ver :: Error`,`Please supply a numericl arguement.`, [{name:"Format", value:`${Service.Settings.Prefix}${Service.Command.Name} ${Service.Command.Usage}`}]);
+                return Service.Utils.ReturnMessage(message, `RobloxNUSA.Ver :: Error`,`Please supply a numericl arguement.`, [{name:"Format", value:`${Service.Environment.Prefix}${Service.Command.Name} ${Service.Command.Usage}`}]);
             }
         } else {
-            return Service.Utils.ReturnMessage(message, `RobloxNUSA.Ver :: Error`,`Please supply only one arguement.`, [{name:"Format", value:`${Service.Settings.Prefix}${Service.Command.Name} ${Service.Command.Usage}`}]);
+            return Service.Utils.ReturnMessage(message, `RobloxNUSA.Ver :: Error`,`Please supply only one arguement.`, [{name:"Format", value:`${Service.Environment.Prefix}${Service.Command.Name} ${Service.Command.Usage}`}]);
         }
     }
 }

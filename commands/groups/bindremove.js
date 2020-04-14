@@ -6,9 +6,9 @@ module.exports = {
     Description: "Removes bindings from the specific role name.",
     Usage: `"<Role Name>" OR RoleID`,
     Run: async(Service, message, args)=>{
-        if (!args) return Service.Utils.ReturnMessage(message, `RobloxNUSA.Ver :: Error`,`Requires 1 parameters.`, [{name:"Format", value:`${Service.Settings.Prefix}${Service.Command.Name} ${Service.Command.Usage}`}]);
-        if (args.length != 1 && message.content.indexOf('"')  == -1) return Service.Utils.ReturnMessage( message, `RobloxNUSA.Ver :: Error`,`Requires 1 parameters. ${args.length} were supplied.`, [{name:"Format", value:`${Service.Settings.Prefix}${Service.Command.Name} ${Service.Command.Usage}`}]);
-        if (!parseInt(args[0]) && message.content.indexOf('"')  == -1) return Service.Utils.ReturnMessage(message, `RobloxNUSA.Ver :: Error`,`Invalid Role format.`, [{name:"Example", value:`${Service.Settings.Prefix}unbind "American Citizen"`}]);
+        if (!args) return Service.Utils.ReturnMessage(message, `RobloxNUSA.Ver :: Error`,`Requires 1 parameters.`, [{name:"Format", value:`${Service.Environment.Prefix}${Service.Command.Name} ${Service.Command.Usage}`}]);
+        if (args.length != 1 && message.content.indexOf('"')  == -1) return Service.Utils.ReturnMessage( message, `RobloxNUSA.Ver :: Error`,`Requires 1 parameters. ${args.length} were supplied.`, [{name:"Format", value:`${Service.Environment.Prefix}${Service.Command.Name} ${Service.Command.Usage}`}]);
+        if (!parseInt(args[0]) && message.content.indexOf('"')  == -1) return Service.Utils.ReturnMessage(message, `RobloxNUSA.Ver :: Error`,`Invalid Role format.`, [{name:"Example", value:`${Service.Environment.Prefix}unbind "American Citizen"`}]);
         var RoleFormat = new RegExp('"(.*?)"', 'g');
         var RoleParam = "";
         

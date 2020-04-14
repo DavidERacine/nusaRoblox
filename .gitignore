@@ -1,4 +1,5 @@
-Settings.json
-.\node_modules\
+Environment.json
+DevEnvironment.json
+/.vscode/
 /node_modules/
 cookie

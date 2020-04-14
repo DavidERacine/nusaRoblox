@@ -6,9 +6,9 @@ module.exports = {
     Description: "Description.",
     Usage: `"<Role Name>" <GroupID>:<Params>`,
     Run: async(Service, message, args)=>{
-        if (!args) return Service.Utils.ReturnMessage(message, `RobloxNUSA.Bind :: Error`,`Requires 2 parameters.`, [{name:"Format", value:`${Service.Settings.Prefix}${Service.Command.Name} ${Service.Command.Usage}`}]);
-        if (args.length != 2 && message.content.indexOf('"')  == -1) return Service.Utils.ReturnMessage( message, `RobloxNUSA.Bind :: Error`,`Requires 2 parameters. ${args.length} were supplied.`, [{name:"Format", value:`${Service.Settings.Prefix}${Service.Command.Name} ${Service.Command.Usage}`}]);
-        if (args[1].indexOf(':') == -1 && message.content.indexOf('"')  == -1) return Service.Utils.ReturnMessage(message, `RobloxNUSA.Bind :: Error`,`Invalid GroupID:Params format.`, [{name:"Example", value:`${Service.Settings.Prefix}bind "American Citizen" 758071:15-30,45-255`}]);
+        if (!args) return Service.Utils.ReturnMessage(message, `RobloxNUSA.Bind :: Error`,`Requires 2 parameters.`, [{name:"Format", value:`${Service.Environment.Prefix}${Service.Command.Name} ${Service.Command.Usage}`}]);
+        if (args.length != 2 && message.content.indexOf('"')  == -1) return Service.Utils.ReturnMessage( message, `RobloxNUSA.Bind :: Error`,`Requires 2 parameters. ${args.length} were supplied.`, [{name:"Format", value:`${Service.Environment.Prefix}${Service.Command.Name} ${Service.Command.Usage}`}]);
+        if (args[1].indexOf(':') == -1 && message.content.indexOf('"')  == -1) return Service.Utils.ReturnMessage(message, `RobloxNUSA.Bind :: Error`,`Invalid GroupID:Params format.`, [{name:"Example", value:`${Service.Environment.Prefix}bind "American Citizen" 758071:15-30,45-255`}]);
         var RoleFormat = new RegExp('"(.*?)"', 'g');
         var RoleName = "";
         var GroupData = "";
