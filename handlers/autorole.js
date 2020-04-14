@@ -13,10 +13,10 @@ module.exports = {
     AutoBlacklist: async(Service) => {
         let Blacklisted = await Service.Utils.BuildQuery(`SELECT * FROM nusaBlacklists WHERE Active='Y'`);
         Blacklisted.forEach( async(Blacklist) => {
-            let RobloxData = await Roblox.getRankNameInGroup(Service.Enviroment.nusaGroup, Blacklist.UserID);
+            let RobloxData = await Roblox.getRankNameInGroup(Service.Environment.nusaGroup, Blacklist.UserID);
             if (RobloxData != "Guest" && RobloxData != Blacklist.lockType){
                 console.log(`Demoting ${Blacklist.Username}(${Blacklist.UserID}) from ${RobloxData} to ${Blacklist.lockType}.`);
-                await Service.Utils.ChangeRank(Blacklist.UserID, Service.Enviroment.nusaGroup, Blacklist.lockType);
+                await Service.Utils.ChangeRank(Blacklist.UserID, Service.Environment.nusaGroup, Blacklist.lockType);
             }
         });
     },
@@ -28,15 +28,15 @@ module.exports = {
      * @return --------
      */
     AutoImmigrate: async(Service) => {
-        let ImmigrationUsers = await Roblox.getPlayers(Service.Enviroment.nusaGroup, Service.Enviroment.imRoleset);
+        let ImmigrationUsers = await Roblox.getPlayers(Service.Environment.nusaGroup, Service.Environment.imRoleset);
         ImmigrationUsers.forEach( async(User) => {
             let ImmigrationCheck = await Service.Utils.ImmigrationCheck(User.userId);
             if (ImmigrationCheck[0]){
                 console.log(`Immigrating ${User.username}(${User.userId}).`);
-                await Service.Utils.ChangeRank(User.userId, Service.Enviroment.nusaGroup, "American Citizen");
+                await Service.Utils.ChangeRank(User.userId, Service.Environment.nusaGroup, "American Citizen");
             }else{
                 console.log(`Not Immigrating ${User.username}(${User.userId}). [${ImmigrationCheck[1]}]`);
-                await Service.Utils.ChangeRank(User.userId, Service.Enviroment.nusaGroup, "Group Blacklist");
+                await Service.Utils.ChangeRank(User.userId, Service.Environment.nusaGroup, "Group Blacklist");
             }
         });
     },
@@ -49,23 +49,23 @@ module.exports = {
      * @return --------
      */
     AutoPrisoner: async(Service) => {
-        let CurrentPrisoners = await Roblox.getPlayers(Service.Enviroment.nusaGroup, Service.Enviroment.fpRoleset);
+        let CurrentPrisoners = await Roblox.getPlayers(Service.Environment.nusaGroup, Service.Environment.fpRoleset);
         let ActivePrisoners = await Service.Utils.BuildQuery(`SELECT * FROM nusaPrisoners WHERE Active='Y'`);
 
         CurrentPrisoners.forEach(async(Prisoner)=>{
             let ActiveFilter = ActivePrisoners.filter(P=>P.UserID==Prisoner.userId);
             if (ActiveFilter.length === 0){
                 console.log(`Sentence not found for ${Prisoner.username}. Putting back to American Citizen.`);
-                await Service.Utils.ChangeRank(User.userId, Service.Enviroment.nusaGroup, "American Citizen");
+                await Service.Utils.ChangeRank(User.userId, Service.Environment.nusaGroup, "American Citizen");
             }else{
                 console.log(`Sentence found for ${Prisoner.username}.`);
             }
         });
 
         ActivePrisoners.forEach(async(Prisoner)=>{
-            let RobloxData = await Roblox.getRankNameInGroup(Service.Enviroment.nusaGroup, Prisoner.UserID);
+            let RobloxData = await Roblox.getRankNameInGroup(Service.Environment.nusaGroup, Prisoner.UserID);
             if (RobloxData != "Guest" && RobloxData != "Federal Prisoner"){
-                await Service.Utils.ChangeRank(Prisoner.UserID, Service.Enviroment.nusaGroup, "Federal Prisoner");
+                await Service.Utils.ChangeRank(Prisoner.UserID, Service.Environment.nusaGroup, "Federal Prisoner");
                 console.log(`New Sentence found for ${Prisoner.Username}. Transporting from ${RobloxData} to Prison Transport Van!`);
             }
         });

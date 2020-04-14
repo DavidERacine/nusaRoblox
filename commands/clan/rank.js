@@ -6,7 +6,7 @@ module.exports = {
     Description: "Rank a user from a group.",
     Usage: "<groupid> <username/userid/discordmention/discordid> <role>",
     Run: async(Service, message, args)=>{
-        if (!args) return Service.Utils.ReturnMessage(message, `nusaRoblox.Clan |  Rank`,`Requires 3 parameters.`, [{name:"Format", value:`${Service.Enviroment.Prefix}${Service.Command.Name} ${Service.Command.Usage}`}]);
+        if (!args) return Service.Utils.ReturnMessage(message, `nusaRoblox.Clan |  Rank`,`Requires 3 parameters.`, [{name:"Format", value:`${Service.Environment.Prefix}${Service.Command.Name} ${Service.Command.Usage}`}]);
         let GroupParam = args[0];
         let UserParam = (message.mentions.members.first() ? message.mentions.members.first().user.id : args[1]);
         let RoleParam = args.slice(2).join(' ');

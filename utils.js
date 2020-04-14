@@ -4,14 +4,14 @@ const Mysql     = require('mysql');
 const Axios     = require('axios').default;
 const Cheerio   = require('cheerio');
 
-const FileServ= require('fs');
-const Enviroment= FileServ.existsSync("./DevEnvironment.json") ? require("./DevEnvironment.json") : require("./Environment.json");
+const FileServ = require('fs');
+const Environment= FileServ.existsSync("./Environment.json") ? require("./Environment.json") : require("./DevEnvironment.json");
 
 const DBConfig  = {
-  host     : Enviroment.mHost,
-  user     : Enviroment.mUser,
-  password : Enviroment.mPass,
-  database : Enviroment.mDB
+  host     : Environment.mHost,
+  user     : Environment.mUser,
+  password : Environment.mPass,
+  database : Environment.mDB
 };
 
 module.exports = {
@@ -161,7 +161,7 @@ module.exports = {
      * @return --------
      */
     ExternalLog: async(Service, Title, Log) => {
-        let LogChannel = await Service.Client.channels.find(c=>c.id == Service.Enviroment.logChannel);
+        let LogChannel = await Service.Client.channels.find(c=>c.id == Service.Environment.logChannel);
         let Embed = await module.exports.BuildEmbed(Title, Log, []);
         LogChannel.send(Embed);
     },

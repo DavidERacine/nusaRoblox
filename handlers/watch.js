@@ -11,15 +11,15 @@ module.exports = {
      * @return --------
      */
     WatchShout: async(Service) => {
-        let ShoutObject = await Roblox.onShout(Service.Enviroment.nusaGroup);
+        let ShoutObject = await Roblox.onShout(Service.Environment.nusaGroup);
         ShoutObject.on('data',async(Shout)=>{
             let ShoutLockQuery = await Service.Utils.BuildQuery("SELECT * FROM nusaShoutLock  WHERE active='Y' ORDER BY ID DESC LIMIT 1");
             if (ShoutLockQuery.length === 0) return;
             let ShoutLock = ShoutLockQuery[0];
             if (Shout.body != ShoutLock.shoutMessage){
-                Roblox.shout(Service.Enviroment.nusaGroup, ShoutLock.shoutMessage);
+                Roblox.shout(Service.Environment.nusaGroup, ShoutLock.shoutMessage);
                 if (ShoutLock.autoDemote != "" && ShoutLock.autoDemote != "Nothing"){
-                    await Service.Utils.ChangeRank(Shout.userId, Service.Enviroment.nusaGroup, ShoutLock.autoDemote);
+                    await Service.Utils.ChangeRank(Shout.userId, Service.Environment.nusaGroup, ShoutLock.autoDemote);
                 }
             } 
         });
@@ -32,7 +32,7 @@ module.exports = {
      * @return --------
      */
     WatchAudit: async(Service) => {
-        let AuditObject = await Roblox.onAudit(Service.Enviroment.nusaGroup);
+        let AuditObject = await Roblox.onAudit(Service.Environment.nusaGroup);
         AuditObject.on('data',async(Audit)=>{
             console.log(Audit);
         });
