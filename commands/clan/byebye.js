@@ -11,8 +11,8 @@ module.exports = {
         if (UserInfo.UserID === undefined) return Service.Utils.ReturnMessage(message, `nusaRoblox.Clan | DiscordByeBye`, UserInfo, []);
         let DiscordID = await Service.Utils.GetRobloxUser(UserInfo.UserID);
 
-        let ClientGuilds = await Service.Client.guilds.filter(g=>(await g.members.find(mem=>mem.id==DiscordID)));
-        console.log(ClientGuilds);
+        //let ClientGuilds = await Service.Client.guilds.filter(g=>(await g.members.find(mem=>mem.id==DiscordID)));
+        //console.log(ClientGuilds);
     }
 }
 
