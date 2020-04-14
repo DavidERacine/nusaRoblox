@@ -1,4 +1,5 @@
-Settings.json
+Enviroment.json
+DevEnviroment.json
 .\node_modules\
 /node_modules/
 cookie

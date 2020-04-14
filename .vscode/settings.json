@@ -1,0 +1,7 @@
+{
+    "files.exclude": {
+        ".vscode": true,
+        "node_**": true,
+        "package**.json": true
+    }
+}

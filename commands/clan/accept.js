@@ -6,7 +6,7 @@ module.exports = {
     Description: "Accepts a user to a group.",
     Usage: "<groupid> <username/userid/discordmention/discordid>",
     Run: async(Service, message, args)=>{
-        if (!args) return Service.Utils.ReturnMessage(message, `nusaRoblox.Clan |  Accept`,`Requires 2 parameters.`, [{name:"Format", value:`${Service.Settings.Prefix}${Service.Command.Name} ${Service.Command.Usage}`}]);
+        if (!args) return Service.Utils.ReturnMessage(message, `nusaRoblox.Clan |  Accept`,`Requires 2 parameters.`, [{name:"Format", value:`${Service.Enviroment.Prefix}${Service.Command.Name} ${Service.Command.Usage}`}]);
         let GroupParam = args[0];
         let UserParam = (message.mentions.members.first() ? message.mentions.members.first().user.id : (args.length > 1 ? args.slice(1).join(' ') : ""));
 

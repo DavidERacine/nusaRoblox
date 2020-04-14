@@ -1,19 +1,27 @@
 const Discord   = require('discord.js');
 const Roblox    = require('noblox.js');
 const Mysql     = require('mysql');
-const Settings  = require('./Settings.json');
 const Axios     = require('axios').default;
 const Cheerio   = require('cheerio');
 
+const FileServ= require('fs');
+const Enviroment= FileServ.existsSync("./DevEnvironment.json") ? require("./DevEnvironment.json") : require("./Environment.json");
+
 const DBConfig  = {
-  host     : Settings.mHost,
-  user     : Settings.mUser,
-  password : Settings.mPass,
-  database : Settings.mDB
+  host     : Enviroment.mHost,
+  user     : Enviroment.mUser,
+  password : Enviroment.mPass,
+  database : Enviroment.mDB
 };
-const LogWebhook = new Discord.WebhookClient("699206140927410206","zLUZM0XHYzMFPa-VCOEvxlhS01iHomc38DzeZo038RdfZ2DrHFu93fYSAbex-FaCMUtK");
 
 module.exports = {
+
+    /* async function `BuildQuery`
+     * Executes and returns a query from the RobloxNUSA Databases
+     * 
+     * @param Query : mysql query 
+     * @return A resolved query promise;
+     */
     BuildQuery: async(Query) => {
         const sqlConn = await Mysql.createConnection(DBConfig);
         sqlConn.connect();
@@ -27,6 +35,14 @@ module.exports = {
         return resolvedPromise;
     },
 
+    /* async function `BuildEmbed`
+     * Designs a Embed based on data.
+     * 
+     * @param Title : Header of the new embed
+     * @param Desc : Description of the new embed 
+     * @param Fields : ArrayList of EmbedArray's {name:"",value:"",inline:boolean}
+     * @return A built Embed, ready to be sent elsewhere
+     */
     BuildEmbed: async(Title, Desc, Fields) => {
         let Embed = await new Discord.RichEmbed()
         .setTitle(Title)
@@ -40,6 +56,15 @@ module.exports = {
         return Embed;
     },
 
+    /* async function `ReturnMessage`
+     * Sends a embeded message with Title/Desc/Fields, and deletes the command message sent.
+     * 
+     * @param Message : Trigger message  
+     * @param Title : Header of the new embed
+     * @param Desc : Description of the new embed 
+     * @param Fields : ArrayList of EmbedArray's {name:"",value:"",inline:boolean}
+     * @return --------
+     */
     ReturnMessage: async( Message, Title, Description, Fields) => {
         const Embed = await module.exports.BuildEmbed(Title, Description, (Fields ? Fields : []));
         await Message.reply(Embed).then( async(Receipt) => {
@@ -51,18 +76,37 @@ module.exports = {
         });
     },
 
+    /* async function `Sleep`
+     * Creates a promise to create a asynchronous sleep function.
+     * 
+     * @param Message : Trigger message  
+     * @return Unresolved Promise that should be await'ed in the calling function.
+     */
     Sleep: async(SleepTime) => {
         return new Promise(resolve => {
             setTimeout(resolve, SleepTime)
         })
     },
 
+    /* async function `asyncForEach`
+     * Creates promises for each item in the array and runs the callback one-by-one.
+     * 
+     * @param array : Array that you want to use for the forEach loop
+     * @param callback : Asynchonus function that you want ran per item in the `array`  
+     * @return --------
+     */
     asyncForEach: async(array, callback) =>{
         for (let index = 0; index < array.length; index++) {
             await callback(array[index], index, array);
         }
     },
     
+    /* async function `NumberCompile`
+     * Takes a array of numbers and converts them into shorthand. i.e. [1,2,3,6,9,10] -> "1-3,6,9-10"
+     * 
+     * @param Numbers : ArrayList of numbers
+     * @return Shorthand string of numbers
+     */
     NumberCompile: async(Numbers) => {
         const Output = []
         let RangeStart
@@ -81,6 +125,12 @@ module.exports = {
         return Output.join(', ');
     },
 
+    /* async function `NumberExplode`
+     * Takes a shorthand string of numbers and converts them into arraylist of numbers. i.e. "1-3,6,9-10" -> [1,2,3,6,9,10] 
+     * 
+     * @param StringTarget : Shorthand string of numbers
+     * @return ArrayList of numbers
+     */
     NumberExplode: async(StringTarget) => {
         const Numbers = [];
         const UnexplodedNumbers = StringTarget.split(',');
@@ -102,23 +152,50 @@ module.exports = {
         return Numbers;
     },
     
-    ExternalLog: async(Main, Title, Log) => {
+    /* async function `ExternalLog`
+     * Sends a webhooked embed detailing a log. 
+     * 
+     * @param Service : Shorthand string of numbers
+     * @param Title : Header of the new embed
+     * @param Log : Description of the new embed 
+     * @return --------
+     */
+    ExternalLog: async(Service, Title, Log) => {
+        let LogChannel = await Service.Client.channels.find(c=>c.id == Service.Enviroment.logChannel);
         let Embed = await module.exports.BuildEmbed(Title, Log, []);
-        LogWebhook.send(Embed);
-        return;
+        LogChannel.send(Embed);
     },
 
+    /* async function `AxiosGet`
+     * This returns the .data of a Axios.get in order to condense code in other areas. 
+     * 
+     * @param Url : URL you wish to get the data from
+     * @return data from url
+     */
     AxiosGet: async(Url) =>{
         let Result = await Axios.get(Url);
         return await Result.data;
     },
 
+    /* async function `GetRobloxUser`
+     * Grabs the active verification record from the database where the discordID is matched. 
+     * 
+     * @param DiscordID : Discord Client ID you want to reference
+     * @return Query Result or false
+     */
     GetRobloxUser: async(DiscordID) => {
         let Query = await module.exports.BuildQuery(`SELECT * FROM nusaDiscordUsers WHERE DiscordID='${DiscordID}' AND Status='Active'`);
         if (Query.length === 0) return false;
         return Query[0];
     },
     
+    /* async function `GetUserBinds`
+     * Grabs all bindings for a guild, and grabs all groups for a UserID, and then nest-checks to see what gets added/removed. 
+     * 
+     * @param RobloxID : Roblox ID you want to reference
+     * @param GuildID : Discord Guild ID you want to reference
+     * @return {Add:[?],Remove:[?]}
+     */
     GetUserBinds: async(RobloxID, GuildID) => {
         let RobloxGroups = await Axios.get(`https://api.roblox.com/users/${RobloxID}/groups`);
         RobloxGroups = await RobloxGroups.data;
@@ -148,6 +225,12 @@ module.exports = {
         return (RoleData);
     },
     
+    /* async function `ImmigrationCheck`
+     * Checks for Immigration Ban, then grabs their JoinData and sees if they have been a Roblox User for 30 days. 
+     * 
+     * @param UserID : Roblox UserID of the user you wish to check immigration attempt on.
+     * @return [success_boolen, errormessage if exists] (as arraylist)
+     */
     ImmigrationCheck: async(UserID)=>{
         let ImmigrationBan = await module.exports.BuildQuery(`SELECT * FROM nusaImmigrationBans WHERE userid='${UserID}'`);
         if (ImmigrationBan.length !== 0) return [false, `Immigration Ban | ${ImmigrationBan[0].reason}`];
@@ -170,6 +253,12 @@ module.exports = {
         }
     },
 
+    /* async function `UserSearch`
+     * Attempts to detect what type of information was supplied and give the correct result. 
+     * 
+     * @param Information : Either Roblox UserID, Roblox Username, or Discord Client ID
+     * @return {UserID: ?, Username: ?} OR false
+     */
     UserSearch: async(Information) =>{
         let IdAttempt     = ((parseInt(Information) && Information.length < 10) ? await module.exports.AxiosGet(`https://api.roblox.com/users/${Information}`) : false);
         let NameAttempt   = (typeof(Information) == "string" ? await module.exports.AxiosGet(`https://api.roblox.com/users/get-by-username?username=${Information}`) : false);
@@ -181,12 +270,26 @@ module.exports = {
         return false;
     },
 
-    GroupSearch: async(Information) =>{
-        let IdAttempt     = (parseInt(Information) ? await module.exports.AxiosGet(`https://api.roblox.com/groups/${Information}`) : false);
+    /* async function `GroupSearch`
+     * Grabs the Roblox Group data from the rAPI. 
+     * 
+     * @param UserID : Roblox userID
+     * @return GroupData OR false
+     */
+    GroupSearch: async(UserID) =>{
+        let IdAttempt     = (parseInt(Information) ? await module.exports.AxiosGet(`https://api.roblox.com/groups/${UserID}`) : false);
         if (IdAttempt && IdAttempt.errorMessage === undefined) return IdAttempt;
         return false;
     },
 
+    /* async function `ChangeRank`
+     * Sets the users rank.
+     * 
+     * @param User : Either Roblox UserID, Roblox Username, or Discord Client ID
+     * @param GroupID : Roblox Group ID where you wish to do the rank change.
+     * @param Role : Role Name of the target role.
+     * @return true OR error string
+     */
     ChangeRank: async(User, GroupID, Role) => {
         let UserResult = await module.exports.UserSearch(User);
         if (!UserResult) return "No user information found.";

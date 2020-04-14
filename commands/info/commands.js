@@ -20,7 +20,7 @@ module.exports = {
                         return await Service.Utils.ReturnMessage(message, `nusaRoblox Error`,'Privacy error most likely.');                
                     });
                 }
-                await Fields.push({name:`${Service.Settings.Prefix}${Cmd.Name} ${Cmd.Usage}`, value:`Aliases: ${(Cmd.Aliases.length == 0 ? "None." : Cmd.Aliases.join(','))}\nCategory: ${Cmd.Category}\nDescription: ${Cmd.Description}\nValid: ${(Cmd.Mode != "Both" ? `${Cmd.Mode} only` : `Anywhere.`)}`});
+                await Fields.push({name:`${Service.Enviroment.Prefix}${Cmd.Name} ${Cmd.Usage}`, value:`Aliases: ${(Cmd.Aliases.length == 0 ? "None." : Cmd.Aliases.join(','))}\nCategory: ${Cmd.Category}\nDescription: ${Cmd.Description}\nValid: ${(Cmd.Mode != "Both" ? `${Cmd.Mode} only` : `Anywhere.`)}`});
             });
 
         });

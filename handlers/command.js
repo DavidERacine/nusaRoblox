@@ -5,6 +5,13 @@ const table = new ascii().setHeading("Command","Load status");
 module.exports = {
     Name: "Commands",
     Description: "Loads all commands and categories.",
+
+    /* async function `Initialize`
+     * Grabs all directories, and their .js files and sets them into Discord Collections.
+     * 
+     * @param Service : nusaRoblox Service
+     * @return --------
+     */
     Initialize: async (Service) =>{
         readdirSync("./commands/").forEach(Dir => {
             const Commands = readdirSync(`./commands/${Dir}/`).filter(File=>File.endsWith('.js'));

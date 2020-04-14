@@ -1,20 +1,22 @@
 const Discord = require('discord.js');
 const Roblox  = require('noblox.js');
+const FileServ= require('fs');
+
 const Utils   = require('./utils.js');
-const Settings= require('./Settings.json');
+const Enviroment= FileServ.existsSync("./DevEnvironment.json") ? require("./DevEnvironment.json") : require("./Environment.json");
 
 const Client  	= new Discord.Client();
 Client.Handlers = new Discord.Collection();
 Client.Commands = new Discord.Collection();
 Client.Aliases 	= new Discord.Collection();
 
-const Handlers = ["command","autorole","watch"];
+const Handlers = ["command","autorole","watch","nitro"];
 
 Client.on('message', async(message)=>{
 	if (message.author.bot) return;
-	if (!message.content.startsWith(Settings.Prefix)) return;
+	if (!message.content.startsWith(Enviroment.Prefix)) return;
 
-	const args = message.content.slice(Settings.Prefix.length).trim().split(/ +/g);
+	const args = message.content.slice(Enviroment.Prefix.length).trim().split(/ +/g);
 	const cmd = args.shift().toLowerCase();
 	if (cmd.length === 0) return; 
 
@@ -26,7 +28,7 @@ Client.on('message', async(message)=>{
 		if (Command.Mode == "Direct" && message.channel.type != "dm") return Utils.ReturnMessage(message, "nusaRoblox","This command is restricted to direct messages.",[]);
 		if (Command.Mode == "Both" && (message.channel.type != "text" && message.channel.type != "dm"))  return Utils.ReturnMessage(message, "nusaRoblox","This command is restricted to direct and guild messages.",[]);
 
-		let Service = {Discord: Discord, Utils:Utils, Client: Client, Command: Command, Settings: Settings, Roblox: Roblox};
+		let Service = {Discord: Discord, Utils:Utils, Client: Client, Command: Command, Enviroment: Enviroment, Roblox: Roblox};
 		await Command.Run(Service, message, args);
 	}
 });
@@ -38,15 +40,14 @@ Client.on('ready', async()=>{
 		"Jared is nice and should not leave..."
 	];
 
-	let Service = {Discord: Discord, Utils:Utils, Client: Client, Command: null, Settings: Settings, Roblox: Roblox}
+	let Service = {Discord: Discord, Utils:Utils, Client: Client, Command: null, Enviroment: Enviroment, Roblox: Roblox}
 
-	await Roblox.cookieLogin(Settings.RobloxSecurity).catch(err=>{Utils.ExternalLog('RobloxSec Error',err);});
+	await Roblox.cookieLogin(Enviroment.RobloxSecurity).catch(err=>{Utils.ExternalLog('RobloxSec Error',err);});
 	
 	await Utils.asyncForEach(Handlers, async(Handler) => {
 		let HandlerData = require(`./handlers/${Handler}.js`);
-		console.log(HandlerData.Name + " loaded ... ");
 		Client.Handlers.set(HandlerData.Name, HandlerData);
-		await HandlerData.Initialize({Discord: Discord, Utils:Utils, Client: Client, Settings: Settings});
+		await HandlerData.Initialize({Discord: Discord, Utils:Utils, Client: Client, Enviroment: Enviroment});
 	});	
 	await Utils.ExternalLog(Service, "Bot Online", `${RandomPhrase[Math.floor(Math.random()*RandomPhrase.length)]}`);
 });
@@ -58,4 +59,4 @@ Client.on('roleDelete', async(Role)=>{
 	}
 });
 
-Client.login(Settings.nusa);
+Client.login(Enviroment.DiscordToken);
