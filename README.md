@@ -24,11 +24,13 @@ nusaRoblox uses a number of open source wrappers and packages to work properly:
 * [noblox.js] - node module that provides an interface for ROBLOX site actions, mostly for use with their HttpService feature,
 
 ### Development
-Lead Developer: David E. Racine, III
-Developer: Jason Z. Benda
-Senior Aide: Jared Q. Hyde
+
+> Lead Developer: David E. Racine, III
+> Developer: Jason Z. Benda
+> Senior Aide: Jared Q. Hyde
 
 ### Todos
+
  - Write MORE Tests
  - Add Night Mode
 
