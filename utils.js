@@ -1,7 +1,9 @@
 const Discord   = require('discord.js');
+const Roblox    = require('noblox.js');
 const Mysql     = require('mysql');
 const Settings  = require('./Settings.json');
 const Axios     = require('axios').default;
+const Cheerio   = require('cheerio');
 
 const DBConfig  = {
   host     : Settings.mHost,
@@ -144,6 +146,57 @@ module.exports = {
             }
         });
         return (RoleData);
-    }    
+    },
+    
+    ImmigrationCheck: async(UserID)=>{
+        let ImmigrationBan = await module.exports.BuildQuery(`SELECT * FROM nusaImmigrationBans WHERE userid='${UserID}'`);
+        if (ImmigrationBan.length !== 0) return [false, `Immigration Ban | ${ImmigrationBan[0].reason}`];
+
+        let Profile = await module.exports.AxiosGet(`https://www.roblox.com/users/${UserID}/profile`);
+        Profile = await Profile.toString();
+        let ProfileObject = Cheerio.load(Profile);
+        let JoinDate = await ProfileObject(`p:contains('Join Date')`).next().html();      
+        if (!JoinDate) JoinDate = await ProfileObject(`p:contains('Join Date')`).next().attr(`data-date-time-i18n-value`)
+        if (!JoinDate) JoinDate = await ProfileObject(`p:contains('Join Date')`).first().html();
+        if (!JoinDate) return console.log('Profile Data Changed.');
+        JoinDate = new Date(JoinDate);
+        let RobloxAge = (new Date() - JoinDate) / (1000 * 60 * 60 * 24);
+        
+        if (RobloxAge >= 30) {
+            return [true];
+        }else{
+            module.exports.BuildQuery(`INSERT INTO nusaImmigrationBans (userid, reason, agent) VALUES ('${UserID}','Age','Bot')`);
+            return [false, `Immigration Ban | Age`];
+        }
+    },
+
+    UserSearch: async(Information) =>{
+        let IdAttempt     = ((parseInt(Information) && Information.length < 10) ? await module.exports.AxiosGet(`https://api.roblox.com/users/${Information}`) : false);
+        let NameAttempt   = (typeof(Information) == "string" ? await module.exports.AxiosGet(`https://api.roblox.com/users/get-by-username?username=${Information}`) : false);
+        let DiscAttempt   = ((parseInt(Information) && Information.length > 10) ? await module.exports.GetRobloxUser(Information) : false);
+
+        if (IdAttempt && IdAttempt.errorMessage === undefined)      return {UserID:IdAttempt.Id, Username: IdAttempt.Username};
+        if (NameAttempt && NameAttempt.errorMessage === undefined)  return {UserID:NameAttempt.Id, Username: NameAttempt.Username};
+        if (DiscAttempt)                                            return  {UserID:DiscAttempt.RobloxID, Username: DiscAttempt.RobloxName};
+        return false;
+    },
+
+    GroupSearch: async(Information) =>{
+        let IdAttempt     = (parseInt(Information) ? await module.exports.AxiosGet(`https://api.roblox.com/groups/${Information}`) : false);
+        if (IdAttempt && IdAttempt.errorMessage === undefined) return IdAttempt;
+        return false;
+    },
+
+    ChangeRank: async(User, GroupID, Role) => {
+        let UserResult = await module.exports.UserSearch(User);
+        if (!UserResult) return "No user information found.";
+        await Roblox.setRank({group: GroupID, target: UserResult.UserID, name: Role}).then(async(Resp)=>{
+            //console.log(Resp);
+            return true;
+        }).catch(async(err)=>{
+            module.exports.ExternalLog(null, `Change Rank Error `, `User: ${User} | GroupID: ${GroupID} | Role: ${Role} \n ${err}`);
+            return err;
+        });
+    }
     
 }

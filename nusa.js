@@ -1,14 +1,14 @@
 const Discord = require('discord.js');
+const Roblox  = require('noblox.js');
 const Utils   = require('./utils.js');
 const Settings= require('./Settings.json');
 
 const Client  	= new Discord.Client();
+Client.Handlers = new Discord.Collection();
 Client.Commands = new Discord.Collection();
 Client.Aliases 	= new Discord.Collection();
 
-["command"].forEach(handler=> {
-	require(`./handler/${handler}`)(Client);
-});
+const Handlers = ["command","autorole","watch"];
 
 Client.on('message', async(message)=>{
 	if (message.author.bot) return;
@@ -26,7 +26,7 @@ Client.on('message', async(message)=>{
 		if (Command.Mode == "Direct" && message.channel.type != "dm") return Utils.ReturnMessage(message, "nusaRoblox","This command is restricted to direct messages.",[]);
 		if (Command.Mode == "Both" && (message.channel.type != "text" && message.channel.type != "dm"))  return Utils.ReturnMessage(message, "nusaRoblox","This command is restricted to direct and guild messages.",[]);
 
-		let Service = {Discord: Discord, Utils:Utils, Client: Client, Command: Command, Settings: Settings};
+		let Service = {Discord: Discord, Utils:Utils, Client: Client, Command: Command, Settings: Settings, Roblox: Roblox};
 		await Command.Run(Service, message, args);
 	}
 });
@@ -37,8 +37,18 @@ Client.on('ready', async()=>{
 		"Jason is a deadbeat!",
 		"Jared is nice and should not leave..."
 	];
-	let Service = {Discord: Discord, Utils:Utils, Client: Client, Command: null, Settings: Settings}
-	await Utils.ExternalLog(Service, "Bot Online", `${RandomPhrase[Math.floor(Math.random()*RandomPhrase.length)]}`);
+
+	let Service = {Discord: Discord, Utils:Utils, Client: Client, Command: null, Settings: Settings, Roblox: Roblox}
+
+	await Roblox.cookieLogin(Settings.RobloxSecurity).catch(err=>{Utils.ExternalLog('RobloxSec Error',err);});
+	
+	await Utils.asyncForEach(Handlers, async(Handler) => {
+		let HandlerData = require(`./handlers/${Handler}.js`);
+		console.log(HandlerData.Name + " loaded ... ");
+		Client.Handlers.set(HandlerData.Name, HandlerData);
+		await HandlerData.Initialize({Discord: Discord, Utils:Utils, Client: Client, Settings: Settings});
+	});	
+
 });
 
 Client.on('roleDelete', async(Role)=>{
