@@ -50,6 +50,7 @@ Client.on('ready', async()=>{
 		await HandlerData.Initialize({Discord: Discord, Utils:Utils, Client: Client, Environment: Environment});
 	});	
 	await Utils.ExternalLog(Service, "Bot Online", `${RandomPhrase[Math.floor(Math.random()*RandomPhrase.length)]}`);
+
 });
 
 Client.on('roleDelete', async(Role)=>{
