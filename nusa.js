@@ -37,8 +37,20 @@ Client.on('ready', async()=>{
 		"Jason is a deadbeat!",
 		"Jared is nice and should not leave..."
 	];
-	let Service = {Discord: Discord, Utils:Utils, Client: Client, Command: null, Settings: Settings}
+
+	let Service = {Discord: Discord, Utils:Utils, Client: Client, Command: null, Settings: Settings, Roblox: Roblox}
+
+	await Roblox.cookieLogin(Settings.RobloxSecurity).catch(err=>{Utils.ExternalLog('RobloxSec Error',err);});
+	
+	await Utils.asyncForEach(Handlers, async(Handler) => {
+		let HandlerData = require(`./handlers/${Handler}.js`);
+		console.log(HandlerData.Name + " loaded ... ");
+		Client.Handlers.set(HandlerData.Name, HandlerData);
+		await HandlerData.Initialize({Discord: Discord, Utils:Utils, Client: Client, Settings: Settings});
+	});	
+
 	await Utils.ExternalLog(Service, "Bot Online", `${RandomPhrase[Math.floor(Math.random()*RandomPhrase.length)]}`);
+
 });
 
 Client.on('roleDelete', async(Role)=>{
