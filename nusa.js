@@ -48,7 +48,7 @@ Client.on('ready', async()=>{
 		Client.Handlers.set(HandlerData.Name, HandlerData);
 		await HandlerData.Initialize({Discord: Discord, Utils:Utils, Client: Client, Settings: Settings});
 	});	
-
+	await Utils.ExternalLog(Service, "Bot Online", `${RandomPhrase[Math.floor(Math.random()*RandomPhrase.length)]}`);
 });
 
 Client.on('roleDelete', async(Role)=>{
